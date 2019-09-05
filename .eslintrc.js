@@ -8,7 +8,7 @@ module.exports = {
         mocha: true
     },
     parserOptions: {
-        ecmaVersion: 8,
+        ecmaVersion: 9,
         sourceType: 'script'
     },
     extends: "eslint:recommended",

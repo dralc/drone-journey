@@ -61,48 +61,65 @@ describe('JourneyContract-drone-journey@0.0.1' , () => {
     });
 
     it('journeyExists', async () => {
-        // TODO: Update with parameters of transaction
-        const args = [];
+        const args = ['journey1'];
 
         const response = await SmartContractUtil.submitTransaction('JourneyContract', 'journeyExists', args, gateway); // Returns buffer of transaction return value
-        // TODO: Update with return value of transaction
-        // assert.equal(JSON.parse(response.toString()), undefined);
+
+        assert.equal(JSON.parse(response.toString()), true);
     }).timeout(10000);
 
     it('createJourney', async () => {
-        // TODO: Update with parameters of transaction
-        const args = [];
+        const value = {
+            status: 'In-flight',
+            startCoord: 'x, y, z',
+            lastCoord: 'a, b, c',
+            flightTime: '1hr 2min',
+            startTime: '1/Jan/2019 9:00am'
+        };
+
+        const args = [ 'journey1', JSON.stringify(value) ];
 
         const response = await SmartContractUtil.submitTransaction('JourneyContract', 'createJourney', args, gateway); // Returns buffer of transaction return value
-        // TODO: Update with return value of transaction
-        // assert.equal(JSON.parse(response.toString()), undefined);
-    }).timeout(10000);
+
+        assert.equal(response.length, 0);
+
+    }).timeout(90000);
 
     it('readJourney', async () => {
-        // TODO: Update with parameters of transaction
-        const args = [];
+        const args = ['journey1'];
 
         const response = await SmartContractUtil.submitTransaction('JourneyContract', 'readJourney', args, gateway); // Returns buffer of transaction return value
-        // TODO: Update with return value of transaction
-        // assert.equal(JSON.parse(response.toString()), undefined);
+
+        let value = JSON.parse(response.toString()).value;
+
+        assert.equal(value, '{"status":"In-flight","startCoord":"x, y, z","lastCoord":"a, b, c","flightTime":"1hr 2min","startTime":"1/Jan/2019 9:00am"}');
+
     }).timeout(10000);
 
     it('updateJourney', async () => {
-        // TODO: Update with parameters of transaction
-        const args = [];
+        const oldVal = {
+            status: 'In-flight',
+            startCoord: 'x, y, z',
+            lastCoord: 'a, b, c',
+            flightTime: '1hr 2min',
+            startTime: '1/Jan/2019 9:00am'
+        };
+
+        const newVal = { ...oldVal, ...{ status: 'complete' } };
+
+        const args = ['journey1', JSON.stringify(newVal)];
 
         const response = await SmartContractUtil.submitTransaction('JourneyContract', 'updateJourney', args, gateway); // Returns buffer of transaction return value
-        // TODO: Update with return value of transaction
-        // assert.equal(JSON.parse(response.toString()), undefined);
+
+        assert.equal(response.length, 0);
     }).timeout(10000);
 
     it('deleteJourney', async () => {
-        // TODO: Update with parameters of transaction
-        const args = [];
+        const args = ['journey1'];
 
         const response = await SmartContractUtil.submitTransaction('JourneyContract', 'deleteJourney', args, gateway); // Returns buffer of transaction return value
-        // TODO: Update with return value of transaction
-        // assert.equal(JSON.parse(response.toString()), undefined);
+
+        assert.equal(response.length, 0);
     }).timeout(10000);
 
 });
