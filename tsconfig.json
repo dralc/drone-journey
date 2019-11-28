@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "dist/services",
+    "sourceMap": true,
+    "typeRoots": [
+        "types",
+        "node_modules/@types"
+    ],
+    "baseUrl": "."
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

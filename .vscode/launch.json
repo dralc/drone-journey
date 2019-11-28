@@ -8,6 +8,18 @@
             "type": "fabric:node",
             "request": "launch",
             "name": "Debug Smart Contract"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug services",
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "args": [
+                "${workspaceFolder}/services/index.ts"
+            ]
         }
     ]
 }
