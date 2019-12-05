@@ -1,6 +1,4 @@
 import { Gateway, FileSystemWallet, GatewayOptions } from 'fabric-network';
-import * as path from 'path';
-import * as os from 'os';
 import { readFile } from 'fs-extra';
 import { EnvConfigs, Configs } from './configs';
 
@@ -24,12 +22,12 @@ export class Invoke {
         this.connectionProfilePath = this.conf.profilePath;
     }
     
-    public async init():Promise<void> {
+    public async connect():Promise<void> {
         this.connectionProfile = await this.getConnectionProfile();
         return await this.gateway.connect(this.connectionProfile, this.gatewayOptions);
     }
     
-    public close():void {
+    public disconnect():void {
         this.gateway.disconnect();
     }
 
@@ -38,4 +36,24 @@ export class Invoke {
         
         return JSON.parse(profile);
     }
+
+    public async submit(contractName: string, funcName: string, id:string, dat?: Journey):Promise<Buffer> {
+        const network = await this.gateway.getNetwork('mychannel');
+        const contract = await network.getContract('drone-journey', contractName);
+        let args = [ id ];
+
+        if (dat) {
+            args.push( JSON.stringify(dat) );
+        }
+        
+        return await contract.submitTransaction(funcName, ...args);
+    }
+}
+
+export interface Journey {
+    status: 'start' | 'in-flight' | 'complete', // todo use enum for smaller payloads
+    startCoord: string,
+    lastCoord: string,
+    startTime: Date,
+    endTime: Date
 }
