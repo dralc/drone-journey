@@ -3,10 +3,10 @@ import { readFile } from 'fs-extra';
 import { EnvConfigs, Configs } from './configs';
 
 export class Invoke {
-    private env:string = process.env.NODE_ENV || 'dev';
-    private conf:EnvConfigs = Configs[this.env];
-    private walletPath = this.conf.walletPath;
-    private gatewayOptions:GatewayOptions = {
+    private env: string = (process.env.NODE_ENV || 'dev').toLowerCase();
+    private conf: EnvConfigs = Configs[this.env];
+    private walletPath: string = this.conf.walletPath;
+    private gatewayOptions: GatewayOptions = {
         wallet: new FileSystemWallet(this.walletPath),
         identity: 'admin',
         discovery: {
@@ -14,17 +14,15 @@ export class Invoke {
             enabled: true
         }
     };
-    private connectionProfilePath:string
-    private connectionProfile:Object;
-    private gateway = new Gateway();
+    private connectionProfilePath: string = this.conf.profilePath;
+    private gateway: Gateway = new Gateway();
+    private connectionProfile: Object;
 
-    constructor() {
-        this.connectionProfilePath = this.conf.profilePath;
-    }
+    constructor() {}
     
     public async connect():Promise<void> {
         this.connectionProfile = await this.getConnectionProfile();
-        return await this.gateway.connect(this.connectionProfile, this.gatewayOptions);
+        await this.gateway.connect(this.connectionProfile, this.gatewayOptions);
     }
     
     public disconnect():void {

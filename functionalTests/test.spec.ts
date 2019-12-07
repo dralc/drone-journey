@@ -1,14 +1,20 @@
 import { Invoke, Journey } from "../services/invoke";
 import * as JourneyContract from "../lib/journey-contract";
+import anyTest, {TestInterface} from 'ava';
+const test = anyTest as TestInterface<{invoke: Invoke}>;
 
-describe("test 1", () => {
-    it('journeyExists', async () => {
-        const invoke = new Invoke();
-
-        const dat:Journey = { endTime: new Date(), startTime: new Date(), status: 'start', startCoord: '', lastCoord: '' };
-        await invoke.connect();
-        const response = await invoke.submit(JourneyContract.getName(), 'journeyExists', 'journey1');
-        invoke.disconnect();
-
-    });
+test.beforeEach(async t => {
+    t.context.invoke = new Invoke();
+    await t.context.invoke.connect();
 });
+
+test.afterEach(t => {
+    t.context.invoke.disconnect();
+});
+
+test('journeyExists', async t => {
+    const response = await t.context.invoke.submit(JourneyContract.getName(), 'journeyExists', 'fake-journey-xyz');
+    t.true(response.toString() === 'false');
+});
+
+// const dat:Journey = { endTime: new Date(), startTime: new Date(), status: 'start', startCoord: '', lastCoord: '' };
