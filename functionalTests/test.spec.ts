@@ -1,8 +1,8 @@
-import { Invoke, Journey, JourneyType, JourneyStatus, QueryJourney } from "../services/invoke";
+import { Invoke } from "../services/invoke";
 import JourneyContract from "../lib/journey-contract";
-import anyTest, { TestInterface } from 'ava';
-import { Query } from "fabric-network";
-const test = anyTest as TestInterface<{ invoke: Invoke, fixtures }>;
+import avaTest, { TestInterface } from 'ava';
+import { Journey, JourneyType, JourneyStatus, JourneyKey, QueryJourney } from "global";
+const test = avaTest as TestInterface<{ invoke: Invoke, fixtures }>;
 
 // Fixtures --------
 const startTime = new Date();
@@ -37,12 +37,14 @@ test.afterEach(t => {
 });
 
 test('getJourney', async t => {
-    const fakeJourney = {
+    const fakeJourney:JourneyKey = {
         droneId: '123xyz',
-        startTime: new Date()
+        owner: 'john',
+        type: JourneyType.civil,
+        status: JourneyStatus.start,
     };
-    const buf = await t.context.invoke.submit(JourneyContract.getName(), 'getJourney', fakeJourney);
-    t.true((buf as QueryJourney).exists === false);
+    const buf = await t.context.invoke.submit( JourneyContract.getName(), 'getJourney', fakeJourney);
+    t.false((buf as QueryJourney).exists);
 });
 
 test('createJourney', async t => {

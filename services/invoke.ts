@@ -1,7 +1,8 @@
 import { Gateway, FileSystemWallet, GatewayOptions } from 'fabric-network';
 import { readFile } from 'fs-extra';
 import { EnvConfigs, Configs } from './configs';
-import JourneyContract from '../lib/journey-contract';
+import * as uuid from 'uuid/v4';
+import { Journey, QueryJourney } from 'global';
 
 export class Invoke {
     private env: string = (process.env.NODE_ENV || 'dev').toLowerCase();
@@ -61,42 +62,15 @@ export class Invoke {
     }
 
     /**
-     * Typically you'll set the drone ID to a UUID like the MAC address of a drone.
-     * Here, we'll generate one
+     * Generates a UUID as the drone id
+     * NB. The drone's MAC address could've been used as well.
+     * @see https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
      */
     static makeDroneId() {
-        // TODO makeDroneId
-        return '123';
+        return uuid();
     }
 }
 
 function isObject(type) {
     return (Object.prototype.toString.call(type) === '[object Object]');
-}
-
-export interface Journey {
-    droneId?: string, // Typically the MAC address on the drone
-    owner?: string,
-    type?: JourneyType,
-    status?: JourneyStatus,
-    startCoord?: string,
-    lastCoord?: string,
-    startTime?: Date,
-    endTime?: Date
-}
-
-export enum JourneyType {
-    civil,
-    commercial,
-    military,
-}
-export enum JourneyStatus {
-    start,
-    inflight,
-    complete,
-}
-
-export interface QueryJourney {
-    buffer: Buffer,
-    exists: boolean
 }
