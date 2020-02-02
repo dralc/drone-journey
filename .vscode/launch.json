@@ -41,7 +41,7 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceFolder}/node_modules/ava/profile.js",
-            "name": "ava",
+            "name": "ava on current file",
             "args": [
                 "-r",
                 "ts-node/register",

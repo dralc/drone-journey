@@ -8,24 +8,19 @@ export interface Journey {
     status?: JourneyStatus,
     startCoord?: string,
     lastCoord?: string,
-    startTime?: Date,
-    endTime?: Date
+    startTime?: string,
+    endTime?: string,
 }
 
 export enum JourneyType {
-    civil,
-    commercial,
-    military,
+    civil = 'ci',
+    commercial = 'co',
+    military = 'mi',
 }
 export enum JourneyStatus {
-    start,
-    inflight,
-    complete,
-}
-
-export interface QueryJourney {
-    buffer: Buffer,
-    exists: boolean
+    start = 's',
+    inflight = 'i',
+    complete = 'c',
 }
 
 export interface JourneyKey {

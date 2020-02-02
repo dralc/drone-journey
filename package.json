@@ -1,6 +1,6 @@
 {
   "name": "drone-journey",
-  "version": "0.0.3",
+  "version": "0.0.32",
   "description": "My Smart Contract",
   "main": "index.js",
   "engines": {
@@ -9,8 +9,9 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "test-watch": "ava --watch",
+    "test-watch": "ava --verbose --watch",
     "test": "nyc ava",
+    "test-contract": "mocha --watch --grep=\"$test\"",
     "start": "fabric-chaincode-node start"
   },
   "engineStrict": true,
