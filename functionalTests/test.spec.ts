@@ -26,11 +26,7 @@ function createNewFixture():Journey {
     };
 }
 
-function getJourneyKey({ droneId, owner, type, status }) {
-    return { droneId, owner, type, status };
-}
-
-test.beforeEach(async t => {
+    test.beforeEach(async t => {
     t.context.invoke = new Invoke();
 
     // NB. every test is given a unique new fixture (journey) so you can assume
@@ -57,7 +53,7 @@ test('getJourney', async t => {
 test('createJourney', async t => {
     const journey = t.context.fixture;
     await t.context.invoke.submit(JourneyContract.getName(), 'createJourney', journey);
-    const dat = await t.context.invoke.submit(JourneyContract.getName(), 'getJourney', getJourneyKey(journey));
+    const dat = await t.context.invoke.submit(JourneyContract.getName(), 'getJourney', Utils.getJourneyKey(journey));
 
     t.deepEqual(Utils.deserialize(dat), journey);
 });
@@ -74,7 +70,7 @@ test('createJourney - throws error on invalid key attributes', async t => {
 });
 
 test('createJourney - throws error when journey already exists', async t => {
-    let key_o = getJourneyKey(t.context.fixture);
+    let key_o = Utils.getJourneyKey(t.context.fixture);
 
     // Create
     let key_buf = await t.context.invoke.submit(JourneyContract.getName(), 'createJourney', key_o);
@@ -97,7 +93,7 @@ test('updateJourney', async t => {
     await t.context.invoke.submit(JourneyContract.getName(), 'updateJourney', journey, journeyUpdate);
 
     // Get
-    const buf = await t.context.invoke.submit(JourneyContract.getName(), 'getJourney', getJourneyKey(journey));
+    const buf = await t.context.invoke.submit(JourneyContract.getName(), 'getJourney', Utils.getJourneyKey(journey));
     const expected = { ...journey, ...journeyUpdate };
     t.deepEqual(Utils.deserialize(buf), expected, "the journey should've been updated");
 });

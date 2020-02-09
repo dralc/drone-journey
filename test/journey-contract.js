@@ -15,6 +15,7 @@ const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 
 chai.should();
+const expect = chai.expect;
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
@@ -31,11 +32,12 @@ class TestContext {
 
 }
 
-describe('JourneyContract', () => {
+describe('--------- JourneyContract ---------', () => {
 
     /** @type {JourneyContract} */
     let contract;
     let ctx;
+    let contractCreateKeyStub;
     const journeysFixtures = new Map([
         ['exists', {
             droneId: '1001',
@@ -62,46 +64,57 @@ describe('JourneyContract', () => {
     beforeEach(() => {
         contract = new JourneyContract();
         ctx = new TestContext();
-        const buf = Utils.serialize(journeysFixtures.get('exists'));
-        const keyThatExists = journeysFixtures.get('exists').droneId;
 
-        // Stub the world state
-        ctx.stub.getState.withArgs(keyThatExists).resolves(buf);
+        // Stub the world state with one record
+        ctx.stubExistingKey = 'Journey:a:b:c:d';
+        ctx.stub.getState
+            .withArgs(ctx.stubExistingKey)
+            .resolves( Utils.serialize(journeysFixtures.get('exists')) );
+
+        ctx.stubExistingKey_o = journeysFixtures.get('exists');
+        contractCreateKeyStub = sinon.stub(contract, 'createKey')
+            .withArgs(ctx, ctx.stubExistingKey_o)
+            .returns(ctx.stubExistingKey);
     });
 
     describe('#getJourney', () => {
 
-        it.only('should return an existing journey', async () => {
-            const keyThatExists = journeysFixtures.get('exists').droneId;
-            const journey = await contract.getJourney(ctx, keyThatExists);
-            console.log('journey: ', journey);
+        it('should return an existing journey', async () => {
+            let journey;
 
-            Utils.isEmpty(journey).should.be.false;
-            Utils.deserialize(journey).should.deep.equal(journeysFixtures.get('exists'));
+            // Test `key` param with composite string
+            journey = await contract.getJourney(ctx, ctx.stubExistingKey);
+            journey.should.deep.equal(journeysFixtures.get('exists'));
+
+            // Test `key` param with jsonObj string
+            journey = await contract.getJourney(ctx, JSON.stringify(ctx.stubExistingKey_o));
+            journey.should.deep.equal(journeysFixtures.get('exists'));
         });
 
         it('should return null for a journey that does not exist', async () => {
-            const j = await contract.getJourney(ctx, 'fake-key');
-            j.should.be.null;
+            const journey = await contract.getJourney(ctx, 'fake-key');
+            expect(journey).to.equal(null);
         });
 
     });
 
     describe('#createJourney', () => {
         it('should create a journey', async () => {
-            const key = '\x00' + 'Journey' + '\u0000' + 'abc' + '\u0000';
-            ctx.stub.createCompositeKey = sinon.stub().returns(key);
-
             const state = journeysFixtures.get('new');
+            const stubKey = 'Journey:x:y:z';
+            contractCreateKeyStub
+                .withArgs(ctx, state)
+                .returns(stubKey);
+
             await contract.createJourney(ctx, JSON.stringify(state));
 
-            ctx.stub.putState.should.have.been.calledOnceWithExactly(key, Utils.serialize(state));
+            ctx.stub.putState.should.be.calledOnceWithExactly(stubKey, Utils.serialize(state));
         });
 
         it('should throw an error for a journey that already exists', async () => {
-            const key = journeysFixtures.get('exists').droneId;
-            ctx.stub.createCompositeKey = sinon.stub().returns(key);
-            await contract.createJourney(ctx, JSON.stringify({droneId: key})).should.eventually.be.rejectedWith(`Can't create a journey(${key}) that already exists.`);
+            const journey = journeysFixtures.get('exists');
+            await contract.createJourney(ctx, JSON.stringify(journey))
+                .should.eventually.be.rejectedWith(`Can't create a journey(${ctx.stubExistingKey}) that already exists.`);
         });
 
     });
@@ -124,7 +137,7 @@ describe('JourneyContract', () => {
         it('should throw an error for a journey that does not exist', async () => {
             const key = journeysFixtures.get('new').droneId;
             ctx.stub.createCompositeKey = sinon.stub().returns(key);
-            await contract.updateJourney(ctx, JSON.stringify({blah: 1}), JSON.stringify({blah:2})).should.be.rejectedWith(`Can't update a journey(${key}) that doesn't exist`);
+            await contract.updateJourney(ctx, JSON.stringify({ blah: 1 }), JSON.stringify({ blah: 2 })).should.be.rejectedWith(`Can't update a journey(${key}) that doesn't exist`);
         });
 
     });

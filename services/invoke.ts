@@ -3,6 +3,7 @@ import { readFile } from 'fs-extra';
 import { EnvConfigs, Configs } from './configs';
 import * as uuid from 'uuid/v4';
 import { Journey, JourneyKey } from '../Journey';
+import * as Utils from '../Utils';
 
 export class Invoke {
     private env: string = (process.env.NODE_ENV || 'dev').toLowerCase();
@@ -37,26 +38,6 @@ export class Invoke {
         return JSON.parse(profile);
     }
 
-    public validateJourneyKey(state:JourneyKey) {
-        const allValidKeys = ['droneId', 'owner', 'type', 'status'];
-        const stateKeys = Object.keys(state);
-
-        // Check attribute's presence
-        allValidKeys.forEach(key => {
-            if (!stateKeys.includes(key)) {
-                throw Error(`The state attribute (${key}) couldn't be found`);
-            }
-        });
-
-        // Check attribute value's type
-        stateKeys.forEach(key => {
-            const val = state[key];
-            if (!val || typeof val !== 'string' || val.trim().length === 0) {
-                throw new TypeError(`Can't create a key with a non-string attribute (${key}:${val})`);
-            }
-        });
-    }
-
     /**
      * 
      * @param contractName 
@@ -65,7 +46,7 @@ export class Invoke {
      * @param stateUpdate 
      */
     public async submit(contractName: string, funcName: string, state: JourneyKey, stateUpdate?: Journey):Promise<Buffer> {
-        this.validateJourneyKey(state);
+        Utils.validateJourneyKey(state);
 
         const network = await this.gateway.getNetwork('mychannel');
         const contract = network.getContract('drone-journey', contractName);
