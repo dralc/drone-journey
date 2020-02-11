@@ -26,7 +26,7 @@ function createNewFixture():Journey {
     };
 }
 
-    test.beforeEach(async t => {
+test.beforeEach(async t => {
     t.context.invoke = new Invoke();
 
     // NB. every test is given a unique new fixture (journey) so you can assume
@@ -90,7 +90,7 @@ test('updateJourney', async t => {
 
     // Update
     const journeyUpdate: Journey = { status: JourneyStatus.inflight };
-    await t.context.invoke.submit(JourneyContract.getName(), 'updateJourney', journey, journeyUpdate);
+    await t.context.invoke.submit(JourneyContract.getName(), 'updateJourney', Utils.getJourneyKey(journey), journeyUpdate);
 
     // Get
     const buf = await t.context.invoke.submit(JourneyContract.getName(), 'getJourney', Utils.getJourneyKey(journey));

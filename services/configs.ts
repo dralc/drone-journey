@@ -16,8 +16,8 @@ export class Configs {
     }
     
     static dev:EnvConfigs = {
-        profilePath: path.join(homedir(), '.fabric-vscode', 'environments', 'local_fabric', 'gateways', 'local_fabric.json'),
+        profilePath: path.join(homedir(), '.fabric-vscode', 'environments', 'local fabric', 'gateways', 'Org1', 'Org1.json'),
         asLocalhost: true,
-        walletPath: path.join(homedir(), '.fabric-vscode', 'wallets', 'local_fabric_wallet'),
+        walletPath: path.join(homedir(), '.fabric-vscode', 'environments', 'local fabric', 'wallets', 'Org1'),
     }
 }

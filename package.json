@@ -1,6 +1,6 @@
 {
   "name": "drone-journey",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "My Smart Contract",
   "main": "index.js",
   "engines": {

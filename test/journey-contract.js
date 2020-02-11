@@ -71,7 +71,7 @@ describe('--------- JourneyContract ---------', () => {
             .withArgs(ctx.stubExistingKey)
             .resolves( Utils.serialize(journeysFixtures.get('exists')) );
 
-        ctx.stubExistingKey_o = journeysFixtures.get('exists');
+        ctx.stubExistingKey_o = Utils.getJourneyKey(journeysFixtures.get('exists'));
         contractCreateKeyStub = sinon.stub(contract, 'createKey')
             .withArgs(ctx, ctx.stubExistingKey_o)
             .returns(ctx.stubExistingKey);
@@ -120,24 +120,27 @@ describe('--------- JourneyContract ---------', () => {
     });
 
     describe('#updateJourney', () => {
-
         it('should update a journey', async () => {
-
-            const lastState = journeysFixtures.get('exists');
             const newState = {
                 lastCoord: '4,5,6',
             };
-            const key = journeysFixtures.get('exists').droneId;
-            ctx.stub.createCompositeKey = sinon.stub().returns(key);
-            await contract.updateJourney(ctx, JSON.stringify(lastState), JSON.stringify(newState));
+            await contract.updateJourney(ctx, JSON.stringify(ctx.stubExistingKey_o), JSON.stringify(newState));
 
-            ctx.stub.putState.should.have.been.calledOnceWithExactly(key, Utils.serialize({ ...lastState, ...newState }));
+            ctx.stub.putState.should.have.been.calledOnceWithExactly(
+                ctx.stubExistingKey,
+                Utils.serialize({ ...journeysFixtures.get('exists'), ...newState }));
         });
 
         it('should throw an error for a journey that does not exist', async () => {
-            const key = journeysFixtures.get('new').droneId;
-            ctx.stub.createCompositeKey = sinon.stub().returns(key);
-            await contract.updateJourney(ctx, JSON.stringify({ blah: 1 }), JSON.stringify({ blah: 2 })).should.be.rejectedWith(`Can't update a journey(${key}) that doesn't exist`);
+            const key = Utils.getJourneyKey(journeysFixtures.get('new'));
+            const key_st = 'Journey:1:2:3';
+            contractCreateKeyStub
+                .withArgs(ctx, key)
+                .returns(key_st);
+
+            await contract.updateJourney(ctx,
+                JSON.stringify(key),
+                JSON.stringify({ blah: 2 })).should.be.rejectedWith(`Can't update a journey(${key_st}) that doesn't exist`);
         });
 
     });
