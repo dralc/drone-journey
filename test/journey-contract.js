@@ -72,8 +72,14 @@ describe('--------- JourneyContract ---------', () => {
             .resolves( Utils.serialize(journeysFixtures.get('exists')) );
 
         ctx.stubExistingKey_o = Utils.getJourneyKey(journeysFixtures.get('exists'));
-        contractCreateKeyStub = sinon.stub(contract, 'createKey')
+        contractCreateKeyStub = sinon.stub(contract, 'createKey');
+
+        contractCreateKeyStub
             .withArgs(ctx, ctx.stubExistingKey_o)
+            .returns(ctx.stubExistingKey);
+
+        contractCreateKeyStub
+            .withArgs(ctx, journeysFixtures.get('exists'))
             .returns(ctx.stubExistingKey);
     });
 
@@ -146,10 +152,9 @@ describe('--------- JourneyContract ---------', () => {
     });
 
     describe('#deleteJourney', () => {
-
         it('should delete a journey', async () => {
-            await contract.deleteJourney(ctx, '1001');
-            ctx.stub.deleteState.should.have.been.calledOnceWithExactly('1001');
+            await contract.deleteJourney(ctx, ctx.stubExistingKey);
+            ctx.stub.deleteState.should.have.been.calledOnceWithExactly(ctx.stubExistingKey);
         });
 
         it('should throw an error for a journey that does not exist', async () => {
